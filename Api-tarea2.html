@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 02 - Buscador de naves</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel">
+        <a class="back-link" href="index.html">← Todos los ejercicios</a>
+        <p class="eyebrow">Ejercicio 02 · SWAPI</p>
+        <h1>Buscador de naves espaciales</h1>
+        <form id="starship-form" class="search-form">
+          <label for="starship-id">Ingrese el ID de la nave</label>
+          <div class="controls">
+            <input id="starship-id" name="starshipId" type="number" min="1" step="1" placeholder="Ej: 9" required />
+            <button type="submit">Buscar</button>
+          </div>
+        </form>
+        <p id="starship-message" class="message" aria-live="polite"></p>
+        <section id="starship-result" class="result" aria-live="polite">
+          <h2>Resultado</h2>
+          <div class="cards">
+            <div class="card"><span class="card-label">Nombre</span><div class="card-value" id="starship-name"></div></div>
+            <div class="card"><span class="card-label">Modelo</span><div class="card-value" id="starship-model"></div></div>
+            <div class="card"><span class="card-label">Fabricante</span><div class="card-value" id="starship-manufacturer"></div></div>
+            <div class="card"><span class="card-label">Costo en créditos</span><div class="card-value" id="starship-cost"></div></div>
+            <div class="card"><span class="card-label">Longitud</span><div class="card-value" id="starship-length"></div></div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script>
+      const form = document.getElementById('starship-form');
+      const input = document.getElementById('starship-id');
+      const message = document.getElementById('starship-message');
+      const starshipName = document.getElementById('starship-name');
+      const starshipModel = document.getElementById('starship-model');
+      const starshipManufacturer = document.getElementById('starship-manufacturer');
+      const starshipCost = document.getElementById('starship-cost');
+      const starshipLength = document.getElementById('starship-length');
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        obtenerNave(input.value);
+      });
+
+      async function obtenerNave(id) {
+        message.innerHTML = 'Buscando nave...';
+
+        if (id < 1) {
+          message.innerHTML = 'Ingrese un ID de nave mayor que cero.';
+          return;
+        }
+
+        const api_url = 'https://swapi.dev/api/starships/' + id + '/';
+
+        try {
+          const respuesta = await fetch(api_url);
+
+          if (!respuesta.ok) {
+            if (respuesta.status == 404) {
+              throw new Error('No se encontró una nave con ese ID.');
+            }
+            throw new Error('No se pudo consultar SWAPI.');
+          }
+
+          const datos = await respuesta.json();
+          starshipName.innerHTML = datos.name;
+          starshipModel.innerHTML = datos.model;
+          starshipManufacturer.innerHTML = datos.manufacturer;
+          starshipCost.innerHTML = datos.cost_in_credits;
+          starshipLength.innerHTML = datos.length;
+          message.innerHTML = 'Nave encontrada: ' + datos.name;
+        } catch (error) {
+          message.innerHTML = error.message;
+        }
+      }
+    </script>
+  </body>
+</html>

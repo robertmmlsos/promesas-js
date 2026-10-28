@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 04 - Buscador de Pokémon</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel">
+        <a class="back-link" href="index.html">← Todos los ejercicios</a>
+        <p class="eyebrow">Ejercicio 04 · PokeAPI</p>
+        <h1>Buscador de Pokémon</h1>
+        <form id="pokemon-form" class="search-form">
+          <label for="pokemon-id">Ingrese el ID o nombre del Pokémon</label>
+          <div class="controls">
+            <input id="pokemon-id" name="pokemonId" type="text" pattern="[A-Za-z0-9-]+" placeholder="Ej: 25 o pikachu" required />
+            <button type="submit">Buscar</button>
+          </div>
+        </form>
+        <p id="pokemon-message" class="message" aria-live="polite"></p>
+        <section id="pokemon-result" class="result" aria-live="polite">
+          <h2>Resultado</h2>
+          <div class="pokemon-card">
+            <img id="pokemon-image" class="pokemon-image" alt="Imagen del Pokémon" />
+            <div class="pokemon-info">
+              <h3 id="pokemon-name"></h3>
+              <p id="pokemon-details"></p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script>
+      const form = document.getElementById('pokemon-form');
+      const input = document.getElementById('pokemon-id');
+      const message = document.getElementById('pokemon-message');
+      const nameElement = document.getElementById('pokemon-name');
+      const detailsElement = document.getElementById('pokemon-details');
+      const imageElement = document.getElementById('pokemon-image');
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        obtenerPokemon(input.value);
+      });
+
+      async function obtenerPokemon(nombre) {
+        message.innerHTML = 'Buscando Pokémon...';
+        nombre = nombre.toLowerCase();
+
+        const api_url = 'https://pokeapi.co/api/v2/pokemon/' + nombre;
+
+        try {
+          const respuesta = await fetch(api_url);
+
+          if (!respuesta.ok) {
+            if (respuesta.status == 404) {
+              throw new Error('No se encontró un Pokémon con ese ID o nombre.');
+            }
+            throw new Error('No se pudo consultar PokeAPI.');
+          }
+
+          const datos = await respuesta.json();
+          nameElement.innerHTML = datos.name;
+          detailsElement.innerHTML = 'ID: ' + datos.id + ' | Altura: ' + datos.height;
+          imageElement.src = datos.sprites.front_default;
+          message.innerHTML = 'Pokémon encontrado: ' + datos.name;
+        } catch (error) {
+          message.innerHTML = error.message;
+        }
+      }
+    </script>
+  </body>
+</html>

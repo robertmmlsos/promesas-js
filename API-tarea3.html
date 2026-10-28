@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 03 - Buscador de Dragon Ball</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel">
+        <a class="back-link" href="index.html">← Todos los ejercicios</a>
+        <p class="eyebrow">Ejercicio 03 · Dragon Ball API</p>
+        <h1>Buscador de personajes</h1>
+        <form id="character-form" class="search-form">
+          <label for="character-id">Ingrese el ID del personaje</label>
+          <div class="controls">
+            <input id="character-id" name="characterId" type="number" min="1" step="1" placeholder="Ej: 1" required />
+            <button type="submit">Buscar</button>
+          </div>
+        </form>
+        <p id="character-message" class="message" aria-live="polite"></p>
+        <section id="character-result" class="result" aria-live="polite">
+          <h2>Resultado</h2>
+          <div class="character-card">
+            <img id="character-image" class="character-image" alt="Imagen del personaje" />
+            <div class="character-info">
+              <h3 id="character-name"></h3>
+              <p id="character-description"></p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script>
+      const form = document.getElementById('character-form');
+      const input = document.getElementById('character-id');
+      const message = document.getElementById('character-message');
+      const nameElement = document.getElementById('character-name');
+      const descriptionElement = document.getElementById('character-description');
+      const imageElement = document.getElementById('character-image');
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        obtenerPersonaje(input.value);
+      });
+
+      async function obtenerPersonaje(id) {
+        message.innerHTML = 'Buscando personaje...';
+
+        if (id < 1) {
+          message.innerHTML = 'Ingrese un ID de personaje mayor que cero.';
+          return;
+        }
+
+        const api_url = 'https://dragonball-api.com/api/characters/' + id;
+
+        try {
+          const respuesta = await fetch(api_url);
+
+          if (!respuesta.ok) {
+            if (respuesta.status == 404) {
+              throw new Error('No se encontró un personaje con ese ID.');
+            }
+            throw new Error('No se pudo consultar la API de Dragon Ball.');
+          }
+
+          const datos = await respuesta.json();
+          nameElement.innerHTML = datos.name;
+          descriptionElement.innerHTML = datos.description;
+          imageElement.src = datos.image;
+          message.innerHTML = 'Personaje encontrado: ' + datos.name;
+        } catch (error) {
+          message.innerHTML = error.message;
+        }
+      }
+    </script>
+  </body>
+</html>

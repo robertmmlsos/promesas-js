@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ejercicio 01 - Buscador de planetas</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <section class="panel">
+        <a class="back-link" href="index.html">← Todos los ejercicios</a>
+        <p class="eyebrow">Ejercicio 01 · SWAPI</p>
+        <h1>Buscador de planetas</h1>
+        <form id="planet-form" class="search-form">
+          <label for="planet-id">Ingrese el ID del planeta</label>
+          <div class="controls">
+            <input id="planet-id" name="planetId" type="number" min="1" max="60" step="1" placeholder="Ej: 3" required />
+            <button type="submit">Buscar</button>
+          </div>
+        </form>
+        <p id="message" class="message" aria-live="polite"></p>
+        <section id="planet-result" class="result" aria-live="polite">
+          <h2>Resultado</h2>
+          <div class="cards">
+            <div class="card"><span class="card-label">Nombre</span><div class="card-value" id="planet-name"></div></div>
+            <div class="card"><span class="card-label">Clima</span><div class="card-value" id="planet-climate"></div></div>
+            <div class="card"><span class="card-label">Terreno</span><div class="card-value" id="planet-terrain"></div></div>
+            <div class="card"><span class="card-label">Población</span><div class="card-value" id="planet-population"></div></div>
+            <div class="card"><span class="card-label">Gravedad</span><div class="card-value" id="planet-gravity"></div></div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script>
+      const form = document.getElementById('planet-form');
+      const input = document.getElementById('planet-id');
+      const message = document.getElementById('message');
+      const planetName = document.getElementById('planet-name');
+      const planetClimate = document.getElementById('planet-climate');
+      const planetTerrain = document.getElementById('planet-terrain');
+      const planetPopulation = document.getElementById('planet-population');
+      const planetGravity = document.getElementById('planet-gravity');
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        obtenerPlaneta(input.value);
+      });
+
+      async function obtenerPlaneta(id) {
+        message.innerHTML = 'Buscando planeta...';
+
+        if (id < 1 || id > 60) {
+          message.innerHTML = 'Ingrese un ID de planeta entre 1 y 60.';
+          return;
+        }
+
+        const api_url = 'https://swapi.dev/api/planets/' + id + '/';
+
+        try {
+          const respuesta = await fetch(api_url);
+
+          if (!respuesta.ok) {
+            if (respuesta.status == 404) {
+              throw new Error('No se encontró un planeta con ese ID.');
+            }
+            throw new Error('No se pudo consultar SWAPI.');
+          }
+
+          const datos = await respuesta.json();
+          planetName.innerHTML = datos.name;
+          planetClimate.innerHTML = datos.climate;
+          planetTerrain.innerHTML = datos.terrain;
+          planetPopulation.innerHTML = datos.population;
+          planetGravity.innerHTML = datos.gravity;
+          message.innerHTML = 'Planeta encontrado: ' + datos.name;
+        } catch (error) {
+          message.innerHTML = error.message;
+        }
+      }
+    </script>
+  </body>
+</html>
